@@ -5,11 +5,12 @@
 - [Lexical Analyzer](https://github.com/Anupznk/Compiler-CSE-310/edit/master/README.md#lexical-analyzer)
 - [Syntax Analyzer](https://github.com/Anupznk/Compiler-CSE-310/edit/master/README.md#syntax-analyzer)
 - [Semantic Analyzer](https://github.com/Anupznk/Compiler-CSE-310/edit/master/README.md#syntax-analyzer)
-- [Intermidiate Code Generator]()
+- [Intermidiate Code Generator](https://github.com/Anupznk/Compiler-CSE-310/edit/master/README.md#intermidiate-code-generator)
 
 ## Symbol Table
 - Used hash of hash table to store all the data
 - The Scope table keeps track of the current and parent scopes
+- [Problem Specifications](https://github.com/Anupznk/Compiler-CSE-310/blob/master/1%20-%20Symbol%20Table/Assignment%201%20Specification.pdf)
 
 ## Lexical Analyzer
 - Takes stream of `lexemes` and produces a stream of `tokens`
@@ -33,6 +34,11 @@ flex -o sample.c 1805082.l
 g++ sample.c -lfl -o sample.o
 ./sample.o
 ```
+
+## Syntax and Sematic Analyzer
+- Used `bison` and `flex`
+- [Problem Specifications](https://github.com/Anupznk/Compiler-CSE-310/blob/master/3%20-%20Syntax%20and%20Semantic%20Analyzer/CSE310_January_2022_YACC_Assignment_Spec.pdf)
+- [Grammar](https://github.com/Anupznk/Compiler-CSE-310/blob/master/3%20-%20Syntax%20and%20Semantic%20Analyzer/BisonAssignmentGrammar.PDF)
 ## Syntax Analyzer
 ### Our chosen subset of the C language has the following characteristics:
 
@@ -105,4 +111,37 @@ After the syntax analyser and the semantic analyser confirms that the source pro
 We have generated the intermediate `code on the fly`. Which means that, instead of using any data structure and passing the whole code one after another to the production rules of the grammar, we have generated the intermediate code as soon as we match a rule and write it in the code.asm file. To do that, we have to use the `PUSH` and `POP` instructions in the assembly code which utilize the stack.
   
 ### Optimization
+Some `Peephole` optimizations
+* **Remove redundant push and pop instructions.**
+    * If the first instruction is push and the second is pop and those contains the same address or register then we can remove both the instructions. For exammple,
+        ```asm
+                *code.asm                               *optimized_code.asm
+                PUSH AX                 ->              ;PUSH AX
+                POP AX                                  ;POP AX
+        ```
+    * If the first is push and the second is a pop containing a register or an address then we can replace the two instructions with one MOV instruction. For example,
+        ```asm
+                *code.asm                               *optimized_code.asm
+                PUSH [BP + -2]          ->              MOV AX, [BP + -2]
+                POP AX
+        ```
+  
+  * **Remove redundant move instructions**
+    * If a move instruction has the same source and destination then we can remove the instruction. For example,
+        ```asm
+                *code.asm                               *optimized_code.asm
+                MOV AX, AX              ->              ;MOV AX, AX
+        ```
+    * If consecutive two instructions are move and the first instruction contains the same register or address as the second instruction then we can remove the first instruction. For example,
+        ```asm
+                *code.asm                              *optimized_code.asm
+                MOV AX, BX              ->             ;MOV AX, BX
+                MOV AX, CX                             MOV AX, CX
+        ```
+    * If consecutive two instructions are move and the source of the first instruction is the destination of the second instruction and the source of the second one is the destination of the first then we can remove the second instruction. For example,
+        ```asm
+                *code.asm                              *optimized_code.asm
+                MOV AX, BX              ->             MOV AX, BX
+                MOV BX, AX                             ;MOV BX, AX
+        ```
   
