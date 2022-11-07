@@ -100,5 +100,9 @@ Some common syntax errors are handled and recovered so that the parser does not 
 </details>
   
 ## Intermidiate Code Generator
-
+After the syntax analyser and the semantic analyser confirms that the source program is correct, the compiler generates the intermediate code. Ideally a three address code is generated in real life compilers. But we have used `8086 Assembly Language` as our intermediate code so that we can run it in `emu 8086` and justify that our compilation is correct. <br>
+  
+We have generated the intermediate `code on the fly`. Which means that, instead of using any data structure and passing the whole code one after another to the production rules of the grammar, we have generated the intermediate code as soon as we match a rule and write it in the code.asm file. To do that, we have to use the `PUSH` and `POP` instructions in the assembly code which utilize the stack.
+  
+### Optimization
   
